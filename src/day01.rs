@@ -26,17 +26,17 @@ fn count_increments(
 
 pub fn run_part1() -> i32 {
     let content = get_file_content();
-    return to_numbers(&content).fold((0, None), count_increments).0;
+    to_numbers(&content).fold((0, None), count_increments).0
 }
 
 pub fn run_part2() -> i32 {
     let content = get_file_content();
     let numbers: Vec<i32> = to_numbers(&content).collect();
-    return numbers
+    numbers
         .windows(3)
         .map(|window| window.iter().sum::<i32>())
         .fold((0, None), count_increments)
-        .0;
+        .0
 }
 
 #[cfg(test)]
