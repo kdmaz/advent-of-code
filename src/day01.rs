@@ -1,41 +1,55 @@
 use std::fs;
 
-fn get_file_content() -> String {
+fn get_numbers() -> Vec<i32> {
     let filename = "day01.txt";
-    fs::read_to_string(filename).expect(&format!("Could not read from file ({})", filename))
+    fs::read_to_string(filename)
+        .expect(&format!("Could not read from file ({})", filename))
+        .lines()
+        .map(|l| {
+            l.parse::<i32>()
+                .expect(&format!("Could not convert &str ({}) to i32", l))
+        })
+        .collect()
 }
 
-fn to_numbers<'a>(content: &'a String) -> impl Iterator<Item = i32> + 'a {
-    content.lines().map(|l| {
-        l.parse::<i32>()
-            .expect(&format!("Could not convert &str ({}) to i32", l))
-    })
+trait Counter: Iterator {
+    fn count_increments(self) -> i32
+    where
+        Self: Sized,
+        Self::Item: Ord,
+        Self::Item: Copy;
 }
 
-fn count_increments(
-    (increased_count, previous): (i32, Option<i32>),
-    current: i32,
-) -> (i32, Option<i32>) {
-    if previous == None || current < previous.unwrap() || current == previous.unwrap() {
-        (increased_count, Some(current))
-    } else {
-        (increased_count + 1, Some(current))
+impl<I> Counter for I
+where
+    I: Iterator,
+{
+    fn count_increments(self) -> i32
+    where
+        Self: Sized,
+        Self::Item: Ord,
+        Self::Item: Copy,
+    {
+        self.fold((0, None), |(increased_count, previous), current| {
+            if previous == None || current < previous.unwrap() || current == previous.unwrap() {
+                (increased_count, Some(current))
+            } else {
+                (increased_count + 1, Some(current))
+            }
+        })
+        .0
     }
 }
 
 pub fn run_part1() -> i32 {
-    let content = get_file_content();
-    to_numbers(&content).fold((0, None), count_increments).0
+    get_numbers().iter().count_increments()
 }
 
 pub fn run_part2() -> i32 {
-    let content = get_file_content();
-    let numbers: Vec<i32> = to_numbers(&content).collect();
-    numbers
+    get_numbers()
         .windows(3)
         .map(|window| window.iter().sum::<i32>())
-        .fold((0, None), count_increments)
-        .0
+        .count_increments()
 }
 
 #[cfg(test)]
