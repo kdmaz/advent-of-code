@@ -30,18 +30,23 @@ fn get_file_content() -> String {
     fs::read_to_string(filename).expect(&format!("Could not read file from {}", filename))
 }
 
+fn get_command_and_units(line: &str) -> (&str, i32) {
+    let mut line = line.split_whitespace();
+    let command = line.next().expect("cannot parse command from line");
+    let units = line
+        .next()
+        .expect("cannot parse unit from line")
+        .parse::<i32>()
+        .expect("cannot parse unit into i32");
+    (command, units)
+}
+
 pub fn run_part1() -> i32 {
     let content = get_file_content();
     let Position { x, y } = content
         .lines()
         .fold(Position { x: 0, y: 0 }, |position, current| {
-            let mut line = current.split_whitespace();
-            let command = line.next().expect("cannot parse command from line");
-            let units = line
-                .next()
-                .expect("cannot parse unit from line")
-                .parse::<i32>()
-                .expect("cannot parse unit into i32");
+            let (command, units) = get_command_and_units(current);
             position + get_position_change(command, units)
         });
 
@@ -74,13 +79,7 @@ fn get_modified_position_change(command: &str, units: i32, current_aim: i32) -> 
 pub fn run_part2() -> i32 {
     let content = get_file_content();
     let ModifiedPosition { x, y, .. } = content.lines().fold(ModifiedPosition { x: 0, y: 0, aim: 0 }, |position, current| {
-        let mut line = current.split_whitespace();
-        let command = line.next().expect("cannot parse command from line");
-        let units = line
-            .next()
-            .expect("cannot parse unit from line")
-            .parse::<i32>()
-            .expect("cannot parse unit into i32");
+        let (command, units) = get_command_and_units(current);
         let current_aim = position.aim;
         position + get_modified_position_change(command, units, current_aim)
     });
