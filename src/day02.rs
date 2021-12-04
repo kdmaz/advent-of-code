@@ -1,4 +1,5 @@
-use std::{fs, ops::Add};
+use crate::util;
+use std::ops::Add;
 
 struct Position {
     x: i32,
@@ -25,11 +26,6 @@ fn get_position_change(command: &str, units: i32) -> Position {
     }
 }
 
-fn get_file_content() -> String {
-    let filename = "day02.txt";
-    fs::read_to_string(filename).expect(&format!("Could not read file from {}", filename))
-}
-
 fn get_command_and_units(line: &str) -> (&str, i32) {
     let mut line = line.split_whitespace();
     let command = line.next().expect("cannot parse command from line");
@@ -42,7 +38,7 @@ fn get_command_and_units(line: &str) -> (&str, i32) {
 }
 
 pub fn run_part1() -> i32 {
-    let content = get_file_content();
+    let content = util::get_file_content("day02.txt");
     let Position { x, y } = content
         .lines()
         .fold(Position { x: 0, y: 0 }, |position, current| {
@@ -56,33 +52,52 @@ pub fn run_part1() -> i32 {
 struct ModifiedPosition {
     x: i32,
     y: i32,
-    aim: i32
+    aim: i32,
 }
 
 impl Add for ModifiedPosition {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
-        ModifiedPosition { x: self.x + rhs.x, y: self.y + rhs.y, aim: self.aim + rhs.aim }
+        ModifiedPosition {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            aim: self.aim + rhs.aim,
+        }
     }
 }
 
 fn get_modified_position_change(command: &str, units: i32, current_aim: i32) -> ModifiedPosition {
     match command {
-        "forward" => ModifiedPosition { x: units, y: current_aim * units, aim: 0 },
-        "up" => ModifiedPosition { x: 0, y: 0, aim: -units },
-        "down" => ModifiedPosition { x: 0, y: 0, aim: units },
+        "forward" => ModifiedPosition {
+            x: units,
+            y: current_aim * units,
+            aim: 0,
+        },
+        "up" => ModifiedPosition {
+            x: 0,
+            y: 0,
+            aim: -units,
+        },
+        "down" => ModifiedPosition {
+            x: 0,
+            y: 0,
+            aim: units,
+        },
         _ => panic!("received unknown command"),
     }
 }
 
 pub fn run_part2() -> i32 {
-    let content = get_file_content();
-    let ModifiedPosition { x, y, .. } = content.lines().fold(ModifiedPosition { x: 0, y: 0, aim: 0 }, |position, current| {
-        let (command, units) = get_command_and_units(current);
-        let current_aim = position.aim;
-        position + get_modified_position_change(command, units, current_aim)
-    });
+    let content = util::get_file_content("day02.txt");
+    let ModifiedPosition { x, y, .. } = content.lines().fold(
+        ModifiedPosition { x: 0, y: 0, aim: 0 },
+        |position, current| {
+            let (command, units) = get_command_and_units(current);
+            let current_aim = position.aim;
+            position + get_modified_position_change(command, units, current_aim)
+        },
+    );
 
     x * y
 }

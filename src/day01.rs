@@ -1,9 +1,7 @@
-use std::fs;
+use crate::util;
 
 fn get_numbers() -> Vec<i32> {
-    let filename = "day01.txt";
-    fs::read_to_string(filename)
-        .expect(&format!("Could not read from file ({})", filename))
+    util::get_file_content("day01.txt")
         .lines()
         .map(|l| {
             l.parse::<i32>()
