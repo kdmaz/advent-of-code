@@ -1,6 +1,3 @@
-#![allow(dead_code)]
-use crate::util;
-
 fn get_numbers() -> Vec<i32> {
     util::get_file_content("day01.txt")
         .lines()
@@ -51,9 +48,11 @@ pub fn run_part2() -> i32 {
         .count_increments()
 }
 
+fn main() {}
+
 #[cfg(test)]
 mod tests {
-    use crate::day01::{run_part1, run_part2};
+    use crate::{run_part1, run_part2};
 
     #[test]
     fn part1_correct() {

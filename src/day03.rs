@@ -1,6 +1,3 @@
-#![allow(dead_code)]
-use crate::util;
-
 struct BitCount {
     zero_count: i32,
     one_count: i32,
@@ -110,9 +107,11 @@ pub fn run_part2() -> i32 {
     oxygen_generator * co2_scrubber
 }
 
+fn main() {}
+
 #[cfg(test)]
 mod tests {
-    use crate::day03::{run_part1, run_part2};
+    use crate::{run_part1, run_part2};
 
     #[test]
     fn part1_correct() {

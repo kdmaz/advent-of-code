@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-use crate::util;
 use std::ops::Add;
 
 struct Position {
@@ -103,9 +101,11 @@ pub fn run_part2() -> i32 {
     x * y
 }
 
+fn main() {}
+
 #[cfg(test)]
 mod tests {
-    use crate::day02::{run_part1, run_part2};
+    use crate::{run_part1, run_part2};
 
     #[test]
     fn part1_correct() {
