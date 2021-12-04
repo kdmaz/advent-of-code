@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use crate::util;
 use std::ops::Add;
 
