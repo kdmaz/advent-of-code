@@ -1,4 +1,7 @@
-use std::{collections::HashSet, str::Split};
+use std::{
+    collections::{HashMap, HashSet},
+    str::Split,
+};
 
 struct Board {
     rows: Vec<Vec<i32>>,
@@ -62,10 +65,10 @@ pub fn run_part1() -> i32 {
             // search columns for match
             for i in 0..board.rows.len() {
                 if board.rows.iter().all(|row| {
-                    let x = row
+                    let num = row
                         .get(i)
                         .expect(&format!("could not find column ({}) on row", i));
-                    drawn_number_set.contains(x)
+                    drawn_number_set.contains(num)
                 }) {
                     winner = Some(board);
                     break 'draw_number;
@@ -87,8 +90,71 @@ pub fn run_part1() -> i32 {
     last_drawn_num * unmarked_numbers_sum
 }
 
-fn run_part2() -> i32 {
-    0
+pub fn run_part2() -> i32 {
+    let content = util::get_file_content("day04.txt");
+    let mut split_content = content.split("\r\n\r\n");
+
+    let drawn_numbers = get_drawn_numbers(&mut split_content);
+    let bingo_boards = get_bingo_boards(&mut split_content);
+
+    let mut drawn_number_set = HashSet::new();
+    let mut winners = HashMap::new();
+    let mut winners_order = Vec::new();
+
+    for drawn_number in drawn_numbers {
+        drawn_number_set.insert(drawn_number);
+        let last_drawn_num = drawn_number;
+
+        // remove won boards from list
+        // break if one bingo_boards.len() left
+        for (board_index, board) in bingo_boards.iter().enumerate() {
+            // search rows for match
+            for row in &board.rows {
+                if row.iter().all(|num| drawn_number_set.contains(num)) {
+                    if winners.get(&board_index).is_none() {
+                        winners.insert(
+                            board_index,
+                            (last_drawn_num, board, drawn_number_set.clone()),
+                        );
+                        winners_order.push(board_index);
+                    }
+                }
+            }
+
+            // search columns for match
+            for i in 0..board.rows.len() {
+                if board.rows.iter().all(|row| {
+                    let num = row
+                        .get(i)
+                        .expect(&format!("could not find column ({}) on row", i));
+                    drawn_number_set.contains(num)
+                }) {
+                    if winners.get(&board_index).is_none() {
+                        winners.insert(
+                            board_index,
+                            (last_drawn_num, board, drawn_number_set.clone()),
+                        );
+                        winners_order.push(board_index);
+                    }
+                }
+            }
+        }
+    }
+
+    let last_index = winners_order.last().expect("could not get last index");
+    let (last_drawn_num, winner, drawn_number_set) = winners
+        .get(last_index)
+        .expect(&format!("could not find last index ({})", last_index));
+
+    let unmarked_numbers_sum = winner.rows.iter().flatten().fold(0, |sum, num| {
+        if !drawn_number_set.contains(num) {
+            sum + num
+        } else {
+            sum
+        }
+    });
+
+    last_drawn_num * unmarked_numbers_sum
 }
 
 fn main() {}
@@ -104,6 +170,6 @@ mod tests {
 
     #[test]
     fn part2_correct() {
-        assert_eq!(0, run_part2());
+        assert_eq!(6256, run_part2());
     }
 }
