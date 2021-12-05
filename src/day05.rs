@@ -1,3 +1,5 @@
+// https://adventofcode.com/2021/day/5
+
 use std::{cmp, collections::HashMap};
 
 #[derive(Debug)]
@@ -8,8 +10,8 @@ struct VentLines {
     y2: i32,
 }
 
-fn get_vent_lines() -> Vec<VentLines> {
-    util::get_file_content("day05.txt")
+fn get_vent_lines(path: &str) -> Vec<VentLines> {
+    util::get_file_content(path)
         .lines()
         .map(|line| {
             let parse_int = |line: Option<&str>| line.unwrap().trim().parse::<i32>().unwrap();
@@ -69,9 +71,47 @@ fn get_dangerous_point_count(points_map: &PointsMap) -> i32 {
         .sum()
 }
 
-pub fn run_part1() -> i32 {
-    let vent_lines = get_vent_lines();
+pub fn run_part1(path: &str) -> i32 {
+    let vent_lines = get_vent_lines(path);
     let points_map = get_points_map(&vent_lines);
+    get_dangerous_point_count(&points_map)
+}
+
+fn get_points_map_with_diagnal(vent_lines: &Vec<VentLines>) -> PointsMap {
+    let mut points_map = HashMap::new();
+
+    for VentLines { x1, y1, x2, y2 } in vent_lines {
+        if x1 == x2 && y1 == y2 {
+            continue;
+        }
+
+        if x1 == x2 {
+            let bigger = *cmp::max(y1, y2) as isize;
+            let smaller = *cmp::min(y1, y2) as isize;
+            let x = *x1;
+
+            for y in smaller..=bigger {
+                let count = points_map.entry((x, y as i32)).or_insert(0);
+                *count += 1;
+            }
+        } else if y1 == y2 {
+            let bigger = *cmp::max(x1, x2) as isize;
+            let smaller = *cmp::min(x1, x2) as isize;
+            let y = *y1;
+
+            for x in smaller..=bigger {
+                let count = points_map.entry((x as i32, y)).or_insert(0);
+                *count += 1;
+            }
+        }
+    }
+
+    points_map
+}
+
+pub fn run_part2(path: &str) -> i32 {
+    let vent_lines = get_vent_lines(path);
+    let points_map = get_points_map_with_diagnal(&vent_lines);
     get_dangerous_point_count(&points_map)
 }
 
@@ -81,15 +121,27 @@ fn main() {}
 mod tests {
     use std::collections::HashMap;
 
-    use crate::{get_dangerous_point_count, run_part1};
+    use crate::{get_dangerous_point_count, run_part1, run_part2};
 
     #[test]
-    fn part1_correct() {
-        assert_eq!(5145, run_part1())
+    fn part1_example() {
+        assert_eq!(5, run_part1("day05_example.txt"))
     }
 
-    // #[test]
-    // fn part2_correct() {}
+    #[test]
+    fn part2_example() {
+        assert_eq!(12, run_part2("day05_example.txt"))
+    }
+
+    #[test]
+    fn part1() {
+        assert_eq!(5145, run_part1("day05.txt"))
+    }
+
+    #[test]
+    fn part2() {
+        assert_eq!(-1, run_part2("day05.txt"))
+    }
 
     #[test]
     fn dangerous_points() {

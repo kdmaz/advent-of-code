@@ -1,3 +1,5 @@
+// https://adventofcode.com/2021/day/3
+
 struct BitCount {
     zero_count: i32,
     one_count: i32,
@@ -45,8 +47,8 @@ fn get_least_common_bit_by_index(i: usize, lines: &Vec<&str>) -> char {
     }
 }
 
-pub fn run_part1() -> i32 {
-    let content = util::get_file_content("day03.txt");
+pub fn run_part1(path: &str) -> i32 {
+    let content = util::get_file_content(path);
     let lines = content.lines().collect::<Vec<&str>>();
     let first_line = lines.first().expect("error getting first line of content");
     let mut gamma = String::new();
@@ -98,8 +100,8 @@ fn filter_lines_by_bits(
     i32::from_str_radix(bits, 2).expect(&format!("could not convert bits ({}) to integer", bits))
 }
 
-pub fn run_part2() -> i32 {
-    let content = util::get_file_content("day03.txt");
+pub fn run_part2(path: &str) -> i32 {
+    let content = util::get_file_content(path);
     let lines = content.lines().collect::<Vec<&str>>();
     let oxygen_generator = filter_lines_by_bits(lines.to_vec(), get_most_common_bit_by_index);
     let co2_scrubber = filter_lines_by_bits(lines, get_least_common_bit_by_index);
@@ -114,12 +116,22 @@ mod tests {
     use crate::{run_part1, run_part2};
 
     #[test]
-    fn part1_correct() {
-        assert_eq!(775304, run_part1());
+    fn part1_example() {
+        assert_eq!(198, run_part1("day03_example.txt"));
     }
 
     #[test]
-    fn part2_correct() {
-        assert_eq!(1370737, run_part2());
+    fn part2_example() {
+        assert_eq!(230, run_part2("day03_example.txt"));
+    }
+
+    #[test]
+    fn part1() {
+        assert_eq!(775304, run_part1("day03.txt"));
+    }
+
+    #[test]
+    fn part2() {
+        assert_eq!(1370737, run_part2("day03.txt"));
     }
 }

@@ -1,3 +1,5 @@
+// https://adventofcode.com/2021/day/2
+
 use std::ops::Add;
 
 struct Position {
@@ -36,8 +38,8 @@ fn get_command_and_units(line: &str) -> (&str, i32) {
     (command, units)
 }
 
-pub fn run_part1() -> i32 {
-    let content = util::get_file_content("day02.txt");
+pub fn run_part1(path: &str) -> i32 {
+    let content = util::get_file_content(path);
     let Position { x, y } = content
         .lines()
         .fold(Position { x: 0, y: 0 }, |position, current| {
@@ -87,8 +89,8 @@ fn get_modified_position_change(command: &str, units: i32, current_aim: i32) -> 
     }
 }
 
-pub fn run_part2() -> i32 {
-    let content = util::get_file_content("day02.txt");
+pub fn run_part2(path: &str) -> i32 {
+    let content = util::get_file_content(path);
     let ModifiedPosition { x, y, .. } = content.lines().fold(
         ModifiedPosition { x: 0, y: 0, aim: 0 },
         |position, current| {
@@ -108,12 +110,22 @@ mod tests {
     use crate::{run_part1, run_part2};
 
     #[test]
-    fn part1_correct() {
-        assert_eq!(2102357, run_part1());
+    fn part1_example() {
+        assert_eq!(150, run_part1("day02_example.txt"));
     }
 
     #[test]
-    fn part2_correct() {
-        assert_eq!(2101031224, run_part2());
+    fn part2_example() {
+        assert_eq!(900, run_part2("day02_example.txt"));
+    }
+
+    #[test]
+    fn part1() {
+        assert_eq!(2102357, run_part1("day02.txt"));
+    }
+
+    #[test]
+    fn part2() {
+        assert_eq!(2101031224, run_part2("day02.txt"));
     }
 }

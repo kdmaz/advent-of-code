@@ -1,3 +1,5 @@
+// https://adventofcode.com/2021/day/4
+
 use std::{
     collections::{HashMap, HashSet},
     str::Split,
@@ -38,8 +40,8 @@ fn get_bingo_boards(split_content: &mut Split<&str>) -> Vec<Board> {
         .collect::<Vec<Board>>()
 }
 
-pub fn run_part1() -> i32 {
-    let content = util::get_file_content("day04.txt");
+pub fn run_part1(path: &str) -> i32 {
+    let content = util::get_file_content(path);
     let mut split_content = content.split("\r\n\r\n");
 
     let drawn_numbers = get_drawn_numbers(&mut split_content);
@@ -90,8 +92,8 @@ pub fn run_part1() -> i32 {
     last_drawn_num * unmarked_numbers_sum
 }
 
-pub fn run_part2() -> i32 {
-    let content = util::get_file_content("day04.txt");
+pub fn run_part2(path: &str) -> i32 {
+    let content = util::get_file_content(path);
     let mut split_content = content.split("\r\n\r\n");
 
     let drawn_numbers = get_drawn_numbers(&mut split_content);
@@ -164,12 +166,22 @@ mod tests {
     use crate::{run_part1, run_part2};
 
     #[test]
-    fn part1_correct() {
-        assert_eq!(58838, run_part1());
+    fn part1_example() {
+        assert_eq!(4512, run_part1("day04_example.txt"));
     }
 
     #[test]
-    fn part2_correct() {
-        assert_eq!(6256, run_part2());
+    fn part2_example() {
+        assert_eq!(1924, run_part2("day04_example.txt"));
+    }
+
+    #[test]
+    fn part1() {
+        assert_eq!(58838, run_part1("day04.txt"));
+    }
+
+    #[test]
+    fn part2() {
+        assert_eq!(6256, run_part2("day04.txt"));
     }
 }
