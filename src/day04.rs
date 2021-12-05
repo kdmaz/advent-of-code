@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 struct Board {
     rows: Vec<Vec<i32>>,
 }
@@ -33,18 +35,49 @@ pub fn run_part1() -> i32 {
         })
         .collect::<Vec<Board>>();
 
-    for board in bingo_boards {
-        println!("board");
-        for nums in board.rows {
-            for num in nums {
-                print!("{} ", num);
+    let mut drawn_number_set = HashSet::new();
+    let mut last_drawn_num = 0;
+    let mut winner = None;
+
+    'draw_number: for drawn_number in drawn_numbers {
+        drawn_number_set.insert(drawn_number);
+        last_drawn_num = drawn_number;
+
+        for board in &bingo_boards {
+            // search rows for match
+            for row in &board.rows {
+                if row.iter().all(|num| drawn_number_set.contains(num)) {
+                    winner = Some(board);
+                    break 'draw_number;
+                }
             }
-            println!();
+
+            // search columns for match
+            for i in 0..board.rows.len() {
+                if board.rows.iter().all(|row| {
+                    let x = row
+                        .get(i)
+                        .expect(&format!("could not find column ({}) on row", i));
+                    drawn_number_set.contains(x)
+                }) {
+                    winner = Some(board);
+                    break 'draw_number;
+                }
+            }
         }
-        println!();
     }
 
-    0
+    let winner = winner.expect("did not find a winner");
+
+    let unmarked_numbers_sum = winner.rows.iter().flatten().fold(0, |sum, num| {
+        if !drawn_number_set.contains(num) {
+            sum + num
+        } else {
+            sum
+        }
+    });
+
+    last_drawn_num * unmarked_numbers_sum
 }
 
 fn main() {}
@@ -55,7 +88,7 @@ mod tests {
 
     #[test]
     fn part1_correct() {
-        assert_eq!(4512, run_part1());
+        assert_eq!(58838, run_part1());
     }
 
     #[test]
