@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{cmp, collections::HashMap};
 
 #[derive(Debug)]
 struct VentLines {
@@ -30,7 +30,35 @@ fn get_vent_lines() -> Vec<VentLines> {
 type PointsMap = HashMap<(i32, i32), i32>;
 
 fn get_points_map(vent_lines: &Vec<VentLines>) -> PointsMap {
-    HashMap::new()
+    let mut points_map = HashMap::new();
+
+    for VentLines { x1, y1, x2, y2 } in vent_lines {
+        if x1 != x2 && y1 != y2 || (x1 == x2 && y1 == y2) {
+            continue;
+        }
+
+        if x1 == x2 {
+            let bigger = *cmp::max(y1, y2) as isize;
+            let smaller = *cmp::min(y1, y2) as isize;
+            let x = *x1;
+
+            for y in smaller..=bigger {
+                let count = points_map.entry((x, y as i32)).or_insert(0);
+                *count += 1;
+            }
+        } else if y1 == y2 {
+            let bigger = *cmp::max(x1, x2) as isize;
+            let smaller = *cmp::min(x1, x2) as isize;
+            let y = *y1;
+
+            for x in smaller..=bigger {
+                let count = points_map.entry((x as i32, y)).or_insert(0);
+                *count += 1;
+            }
+        }
+    }
+
+    points_map
 }
 
 fn get_dangerous_point_count(points_map: &PointsMap) -> i32 {
@@ -57,7 +85,7 @@ mod tests {
 
     #[test]
     fn part1_correct() {
-        assert_eq!(5, run_part1())
+        assert_eq!(5145, run_part1())
     }
 
     // #[test]
@@ -68,55 +96,20 @@ mod tests {
         let mut points_map = HashMap::new();
 
         // row 0
-        points_map.insert((0, 0), 0);
-        points_map.insert((1, 0), 0);
-        points_map.insert((2, 0), 0);
-        points_map.insert((3, 0), 0);
-        points_map.insert((4, 0), 0);
-        points_map.insert((5, 0), 0);
-        points_map.insert((6, 0), 0);
         points_map.insert((7, 0), 1);
-        points_map.insert((8, 0), 0);
-        points_map.insert((9, 0), 0);
 
         // row 1
-        points_map.insert((0, 1), 0);
-        points_map.insert((1, 1), 0);
         points_map.insert((2, 1), 1);
-        points_map.insert((3, 1), 0);
-        points_map.insert((4, 1), 0);
-        points_map.insert((5, 1), 0);
-        points_map.insert((6, 1), 0);
         points_map.insert((7, 1), 1);
-        points_map.insert((8, 1), 0);
-        points_map.insert((9, 1), 0);
 
         // row 2
-        points_map.insert((0, 2), 0);
-        points_map.insert((1, 2), 0);
         points_map.insert((2, 2), 1);
-        points_map.insert((3, 2), 0);
-        points_map.insert((4, 2), 0);
-        points_map.insert((5, 2), 0);
-        points_map.insert((6, 2), 0);
         points_map.insert((7, 2), 1);
-        points_map.insert((8, 2), 0);
-        points_map.insert((9, 2), 0);
 
         // row 3
-        points_map.insert((0, 3), 0);
-        points_map.insert((1, 3), 0);
-        points_map.insert((2, 3), 0);
-        points_map.insert((3, 3), 0);
-        points_map.insert((4, 3), 0);
-        points_map.insert((5, 3), 0);
-        points_map.insert((6, 3), 0);
         points_map.insert((7, 3), 1);
-        points_map.insert((8, 3), 0);
-        points_map.insert((9, 3), 0);
 
         // row 4
-        points_map.insert((0, 4), 0);
         points_map.insert((1, 4), 1);
         points_map.insert((2, 4), 1);
         points_map.insert((3, 4), 2);
@@ -127,54 +120,6 @@ mod tests {
         points_map.insert((8, 4), 1);
         points_map.insert((9, 4), 1);
 
-        // row 5
-        points_map.insert((0, 5), 0);
-        points_map.insert((1, 5), 0);
-        points_map.insert((2, 5), 0);
-        points_map.insert((3, 5), 0);
-        points_map.insert((4, 5), 0);
-        points_map.insert((5, 5), 0);
-        points_map.insert((6, 5), 0);
-        points_map.insert((7, 5), 0);
-        points_map.insert((8, 5), 0);
-        points_map.insert((9, 5), 0);
-
-        // row 6
-        points_map.insert((0, 6), 0);
-        points_map.insert((1, 6), 0);
-        points_map.insert((2, 6), 0);
-        points_map.insert((3, 6), 0);
-        points_map.insert((4, 6), 0);
-        points_map.insert((5, 6), 0);
-        points_map.insert((6, 6), 0);
-        points_map.insert((7, 6), 0);
-        points_map.insert((8, 6), 0);
-        points_map.insert((9, 6), 0);
-
-        // row 7
-        points_map.insert((0, 7), 0);
-        points_map.insert((1, 7), 0);
-        points_map.insert((2, 7), 0);
-        points_map.insert((3, 7), 0);
-        points_map.insert((4, 7), 0);
-        points_map.insert((5, 7), 0);
-        points_map.insert((6, 7), 0);
-        points_map.insert((7, 7), 0);
-        points_map.insert((8, 7), 0);
-        points_map.insert((9, 7), 0);
-
-        // row 8
-        points_map.insert((0, 8), 0);
-        points_map.insert((1, 8), 0);
-        points_map.insert((2, 8), 0);
-        points_map.insert((3, 8), 0);
-        points_map.insert((4, 8), 0);
-        points_map.insert((5, 8), 0);
-        points_map.insert((6, 8), 0);
-        points_map.insert((7, 8), 0);
-        points_map.insert((8, 8), 0);
-        points_map.insert((9, 8), 0);
-
         // row 9
         points_map.insert((0, 9), 2);
         points_map.insert((1, 9), 2);
@@ -182,10 +127,6 @@ mod tests {
         points_map.insert((3, 9), 1);
         points_map.insert((4, 9), 1);
         points_map.insert((5, 9), 1);
-        points_map.insert((6, 9), 0);
-        points_map.insert((7, 9), 0);
-        points_map.insert((8, 9), 0);
-        points_map.insert((9, 9), 0);
 
         assert_eq!(get_dangerous_point_count(&points_map), 5);
     }
