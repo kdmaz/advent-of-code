@@ -1,14 +1,11 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, str::Split};
 
 struct Board {
     rows: Vec<Vec<i32>>,
 }
 
-pub fn run_part1() -> i32 {
-    let content = util::get_file_content("day04.txt");
-    let mut split_content = content.split("\r\n\r\n");
-
-    let drawn_numbers = split_content
+fn get_drawn_numbers(split_content: &mut Split<&str>) -> Vec<i32> {
+    split_content
         .next()
         .expect("could not get drawn numbers")
         .split(",")
@@ -17,9 +14,11 @@ pub fn run_part1() -> i32 {
                 .parse::<i32>()
                 .expect(&format!("could not parse ({}) into integer", drawn_num))
         })
-        .collect::<Vec<i32>>();
+        .collect::<Vec<i32>>()
+}
 
-    let bingo_boards = split_content
+fn get_bingo_boards(split_content: &mut Split<&str>) -> Vec<Board> {
+    split_content
         .map(|board| {
             let to_int = |num: &str| {
                 num.parse::<i32>()
@@ -33,7 +32,15 @@ pub fn run_part1() -> i32 {
 
             Board { rows }
         })
-        .collect::<Vec<Board>>();
+        .collect::<Vec<Board>>()
+}
+
+pub fn run_part1() -> i32 {
+    let content = util::get_file_content("day04.txt");
+    let mut split_content = content.split("\r\n\r\n");
+
+    let drawn_numbers = get_drawn_numbers(&mut split_content);
+    let bingo_boards = get_bingo_boards(&mut split_content);
 
     let mut drawn_number_set = HashSet::new();
     let mut last_drawn_num = 0;
@@ -80,11 +87,15 @@ pub fn run_part1() -> i32 {
     last_drawn_num * unmarked_numbers_sum
 }
 
+fn run_part2() -> i32 {
+    0
+}
+
 fn main() {}
 
 #[cfg(test)]
 mod tests {
-    use crate::run_part1;
+    use crate::{run_part1, run_part2};
 
     #[test]
     fn part1_correct() {
@@ -92,5 +103,7 @@ mod tests {
     }
 
     #[test]
-    fn part2_correct() {}
+    fn part2_correct() {
+        assert_eq!(0, run_part2());
+    }
 }
