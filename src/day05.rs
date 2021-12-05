@@ -35,27 +35,34 @@ fn get_points_map(vent_lines: &Vec<VentLines>) -> PointsMap {
     let mut points_map = HashMap::new();
 
     for VentLines { x1, y1, x2, y2 } in vent_lines {
-        if x1 != x2 && y1 != y2 || (x1 == x2 && y1 == y2) {
+        let same_points = x1 == x2 && y1 == y2;
+        let points_mismatch = x1 != x2 && y1 != y2;
+
+        if points_mismatch || same_points {
             continue;
         }
 
+        let bigger_x = *cmp::max(x1, x2) as isize;
+        let smaller_x = *cmp::min(x1, x2) as isize;
+        let bigger_y = *cmp::max(y1, y2) as isize;
+        let smaller_y = *cmp::min(y1, y2) as isize;
+
+        let update_points_map = |points_map: &mut PointsMap, position| {
+            let count = points_map.entry(position).or_insert(0);
+            *count += 1;
+        };
+
         if x1 == x2 {
-            let bigger = *cmp::max(y1, y2) as isize;
-            let smaller = *cmp::min(y1, y2) as isize;
             let x = *x1;
 
-            for y in smaller..=bigger {
-                let count = points_map.entry((x, y as i32)).or_insert(0);
-                *count += 1;
+            for y in smaller_y..=bigger_y {
+                update_points_map(&mut points_map, (x, y as i32));
             }
         } else if y1 == y2 {
-            let bigger = *cmp::max(x1, x2) as isize;
-            let smaller = *cmp::min(x1, x2) as isize;
             let y = *y1;
 
-            for x in smaller..=bigger {
-                let count = points_map.entry((x as i32, y)).or_insert(0);
-                *count += 1;
+            for x in smaller_x..=bigger_x {
+                update_points_map(&mut points_map, (x as i32, y));
             }
         }
     }
@@ -81,27 +88,51 @@ fn get_points_map_with_diagnal(vent_lines: &Vec<VentLines>) -> PointsMap {
     let mut points_map = HashMap::new();
 
     for VentLines { x1, y1, x2, y2 } in vent_lines {
-        if x1 == x2 && y1 == y2 {
+        let same_points = x1 == x2 && y1 == y2;
+        let points_mismatch = x1 != x2 && y1 != y2;
+        let not_diagnal = (x1 - x2).abs() != (y1 - y2).abs();
+
+        if (points_mismatch && not_diagnal) || same_points {
             continue;
         }
 
+        let bigger_x = *cmp::max(x1, x2) as isize;
+        let smaller_x = *cmp::min(x1, x2) as isize;
+        let bigger_y = *cmp::max(y1, y2) as isize;
+        let smaller_y = *cmp::min(y1, y2) as isize;
+
+        let update_points_map = |points_map: &mut PointsMap, position| {
+            let count = points_map.entry(position).or_insert(0);
+            *count += 1;
+        };
+
         if x1 == x2 {
-            let bigger = *cmp::max(y1, y2) as isize;
-            let smaller = *cmp::min(y1, y2) as isize;
             let x = *x1;
 
-            for y in smaller..=bigger {
-                let count = points_map.entry((x, y as i32)).or_insert(0);
-                *count += 1;
+            for y in smaller_y..=bigger_y {
+                update_points_map(&mut points_map, (x, y as i32));
             }
         } else if y1 == y2 {
-            let bigger = *cmp::max(x1, x2) as isize;
-            let smaller = *cmp::min(x1, x2) as isize;
             let y = *y1;
 
-            for x in smaller..=bigger {
-                let count = points_map.entry((x as i32, y)).or_insert(0);
-                *count += 1;
+            for x in smaller_x..=bigger_x {
+                update_points_map(&mut points_map, (x as i32, y));
+            }
+        } else if (x1 < x2 && y1 > y2) || (x2 < x1 && y2 > y1) {
+            // / Secondary Diagnal /
+            for i in 0..=bigger_x - smaller_x {
+                let x = (smaller_x + i) as i32;
+                let y = (bigger_y - i) as i32;
+
+                update_points_map(&mut points_map, (x, y));
+            }
+        } else {
+            // \ Primary Diagnal \
+            for i in 0..=bigger_x - smaller_x {
+                let x = (smaller_x + i) as i32;
+                let y = (smaller_y + i) as i32;
+
+                update_points_map(&mut points_map, (x, y));
             }
         }
     }
@@ -140,7 +171,7 @@ mod tests {
 
     #[test]
     fn part2() {
-        assert_eq!(-1, run_part2("day05.txt"))
+        assert_eq!(16518, run_part2("day05.txt"))
     }
 
     #[test]
