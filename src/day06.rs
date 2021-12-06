@@ -1,33 +1,43 @@
+use std::collections::HashMap;
+
 // https://adventofcode.com/2021/day/6
 
-pub fn run_part1(path: &str) -> i32 {
+pub fn run_part1(path: &str, days: i32) -> i64 {
     let content = util::get_file_content(path);
-    let mut nums = content.split(",").map(|num| num.parse().unwrap()).collect::<Vec<i32>>();
+    let mut nums_map: HashMap<i32, i64> = HashMap::new();
 
-    for _ in 0..80 {
-        let mut zero_count = 0;
-        nums = nums.iter().map(|num| {
-            if num == &0 {
-                zero_count += 1;
-                6
+    content.split(",").for_each(|num| {
+        let count = nums_map.entry(num.parse().unwrap()).or_insert(0);
+        *count += 1;
+    });
+
+
+    for _ in 0..days {
+        let mut temp_map = HashMap::new();
+
+        for (day, count) in nums_map {
+            if day == 0 {
+                let c1 = temp_map.entry(6).or_insert(0);
+                *c1 += count;
+
+                let c2 = temp_map.entry(8).or_insert(0);
+                *c2 += count;
             } else {
-                num - 1
-            }
-        }).collect::<Vec<i32>>();
-
-        if zero_count > 0 {
-            for _ in 0..zero_count {
-                nums.push(8);
+                let c = temp_map.entry(day - 1).or_insert(0);
+                *c += count;
             }
         }
+
+        nums_map = temp_map.clone();
     }
 
-    nums.len() as i32
+    nums_map.iter().fold(0, |count, (_, v)| {
+        count + v
+    })    
 }
 
-pub fn run_part2(path: &str) -> i32 {
-    let _content = util::get_file_content(path);
-    0
+pub fn run_part2(path: &str, days: i32) -> i64 {
+    run_part1(path, days)
 }
 
 fn main() {}
@@ -37,23 +47,21 @@ mod tests {
 
     #[test]
     fn part1_example() {
-        assert_eq!(5934, run_part1("day06_example.txt"))
+        assert_eq!(5934, run_part1("day06_example.txt", 80))
     }
 
-    #[ignore]
     #[test]
     fn part2_example() {
-        assert_eq!(-1, run_part2("day06_example.txt"))
+        assert_eq!(26984457539, run_part2("day06_example.txt", 256))
     }
 
     #[test]
     fn part1() {
-        assert_eq!(366057, run_part1("day06.txt"))
+        assert_eq!(366057, run_part1("day06.txt", 80))
     }
 
-    #[ignore]
     #[test]
     fn part2() {
-        assert_eq!(-1, run_part2("day06.txt"))
+        assert_eq!(1653559299811, run_part2("day06.txt", 256))
     }
 }
