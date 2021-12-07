@@ -40,11 +40,11 @@ pub fn run_part1(path: &str) -> i32 {
     let mut fuel_cost_by_position = HashMap::new();
 
     for position in min..=max {
-        let fuel_cost = nums.iter().fold(0, |fuel_cost, current_position| {
-            fuel_cost + (current_position - position as i32).abs()
+        let total_fuel_cost = nums.iter().fold(0, |total_fuel_cost, current_position| {
+            total_fuel_cost + (current_position - position as i32).abs()
         });
 
-        fuel_cost_by_position.insert(position, fuel_cost);
+        fuel_cost_by_position.insert(position, total_fuel_cost);
     }
 
     get_lowest_fuel_count(&fuel_cost_by_position)
@@ -58,12 +58,12 @@ pub fn run_part2(path: &str) -> i32 {
     let mut fuel_cost_by_position = HashMap::new();
 
     for position in min..=max {
-        let fuel_cost = nums.iter().fold(0, |fuel_cost, current_position| {
+        let total_fuel_cost = nums.iter().fold(0, |total_fuel_cost, current_position| {
             let difference = (current_position - position as i32).abs();
-            fuel_cost + (0..=difference).sum::<i32>()
+            total_fuel_cost + ((difference * (difference + 1)) / 2)
         });
 
-        fuel_cost_by_position.insert(position, fuel_cost);
+        fuel_cost_by_position.insert(position, total_fuel_cost);
     }
 
     get_lowest_fuel_count(&fuel_cost_by_position)
