@@ -1,34 +1,31 @@
 // https://adventofcode.com/2021/day/4
 
-use std::{
-    collections::{HashMap, HashSet},
-    str::Split,
-};
+use std::collections::{HashMap, HashSet};
 
+#[derive(Debug)]
 struct Board {
     rows: Vec<Vec<i32>>,
 }
 
-fn get_drawn_numbers(split_content: &mut Split<&str>) -> Vec<i32> {
-    split_content
-        .next()
-        .expect("could not get drawn numbers")
-        .split(",")
-        .map(|drawn_num| {
-            drawn_num
-                .parse::<i32>()
-                .expect(&format!("could not parse ({}) into integer", drawn_num))
-        })
+fn get_drawn_numbers(first_part: &str) -> Vec<i32> {
+    first_part
+        .split_terminator(",")
+        .map(|drawn_num| drawn_num.parse::<i32>().unwrap())
         .collect::<Vec<i32>>()
 }
 
-fn get_bingo_boards(split_content: &mut Split<&str>) -> Vec<Board> {
-    split_content
+fn get_bingo_boards(second_part: &str) -> Vec<Board> {
+    let split;
+
+    if cfg!(windows) {
+        split = second_part.trim().split("\r\n\r\n")
+    } else {
+        split = second_part.trim().split("\n\n")
+    }
+
+    split
         .map(|board| {
-            let to_int = |num: &str| {
-                num.parse::<i32>()
-                    .expect(&format!("could not parse ({}) into integer", num))
-            };
+            let to_int = |num: &str| num.parse::<i32>().unwrap();
 
             let to_number_vec =
                 |line: &str| line.split_whitespace().map(to_int).collect::<Vec<i32>>();
@@ -40,13 +37,20 @@ fn get_bingo_boards(split_content: &mut Split<&str>) -> Vec<Board> {
         .collect::<Vec<Board>>()
 }
 
-pub fn run_part1(path: &str) -> i32 {
+fn get_drawn_numbers_and_bingo_boards(path: &str) -> (Vec<i32>, Vec<Board>) {
     let content = util::get_file_content(path);
-    let mut split_content = content.split("\r\n\r\n");
+    let mut split_content = content.splitn(2, "\n");
+    let first_part = split_content.next().unwrap();
+    let second_part = split_content.next().unwrap();
 
-    let drawn_numbers = get_drawn_numbers(&mut split_content);
-    let bingo_boards = get_bingo_boards(&mut split_content);
+    let drawn_numbers = get_drawn_numbers(first_part);
+    let bingo_boards = get_bingo_boards(second_part);
+    println!("boards: {:?}", bingo_boards);
+    (drawn_numbers, bingo_boards)
+}
 
+pub fn run_part1(path: &str) -> i32 {
+    let (drawn_numbers, bingo_boards) = get_drawn_numbers_and_bingo_boards(path);
     let mut drawn_number_set = HashSet::new();
     let mut last_drawn_num = 0;
     let mut winner = None;
@@ -67,9 +71,7 @@ pub fn run_part1(path: &str) -> i32 {
             // search columns for match
             for i in 0..board.rows.len() {
                 if board.rows.iter().all(|row| {
-                    let num = row
-                        .get(i)
-                        .expect(&format!("could not find column ({}) on row", i));
+                    let num = row.get(i).unwrap();
                     drawn_number_set.contains(num)
                 }) {
                     winner = Some(board);
@@ -79,7 +81,7 @@ pub fn run_part1(path: &str) -> i32 {
         }
     }
 
-    let winner = winner.expect("did not find a winner");
+    let winner = winner.unwrap();
 
     let unmarked_numbers_sum = winner.rows.iter().flatten().fold(0, |sum, num| {
         if !drawn_number_set.contains(num) {
@@ -93,12 +95,7 @@ pub fn run_part1(path: &str) -> i32 {
 }
 
 pub fn run_part2(path: &str) -> i32 {
-    let content = util::get_file_content(path);
-    let mut split_content = content.split("\r\n\r\n");
-
-    let drawn_numbers = get_drawn_numbers(&mut split_content);
-    let bingo_boards = get_bingo_boards(&mut split_content);
-
+    let (drawn_numbers, bingo_boards) = get_drawn_numbers_and_bingo_boards(path);
     let mut drawn_number_set = HashSet::new();
     let mut winners = HashMap::new();
     let mut winners_order = Vec::new();
@@ -107,8 +104,6 @@ pub fn run_part2(path: &str) -> i32 {
         drawn_number_set.insert(drawn_number);
         let last_drawn_num = drawn_number;
 
-        // remove won boards from list
-        // break if one bingo_boards.len() left
         for (board_index, board) in bingo_boards.iter().enumerate() {
             // search rows for match
             for row in &board.rows {
@@ -126,9 +121,7 @@ pub fn run_part2(path: &str) -> i32 {
             // search columns for match
             for i in 0..board.rows.len() {
                 if board.rows.iter().all(|row| {
-                    let num = row
-                        .get(i)
-                        .expect(&format!("could not find column ({}) on row", i));
+                    let num = row.get(i).unwrap();
                     drawn_number_set.contains(num)
                 }) {
                     if winners.get(&board_index).is_none() {
@@ -143,10 +136,8 @@ pub fn run_part2(path: &str) -> i32 {
         }
     }
 
-    let last_index = winners_order.last().expect("could not get last index");
-    let (last_drawn_num, winner, drawn_number_set) = winners
-        .get(last_index)
-        .expect(&format!("could not find last index ({})", last_index));
+    let last_index = winners_order.last().unwrap();
+    let (last_drawn_num, winner, drawn_number_set) = winners.get(last_index).unwrap();
 
     let unmarked_numbers_sum = winner.rows.iter().flatten().fold(0, |sum, num| {
         if !drawn_number_set.contains(num) {

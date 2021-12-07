@@ -3,38 +3,46 @@
 use std::collections::HashMap;
 
 fn get_max_and_min(nums: &Vec<i32>) -> (isize, isize) {
-    let (max, min) = nums.iter().fold((None, None), |(max, min), current_position| {
-        if max == None || min == None {
-            return (Some(current_position), Some(current_position));
-        }
+    let (max, min) = nums
+        .iter()
+        .fold((None, None), |(max, min), current_position| {
+            if max == None || min == None {
+                return (Some(current_position), Some(current_position));
+            }
 
-        let max_and_min = (max, min);
+            let max_and_min = (max, min);
 
-        if current_position > max.unwrap() {
-            (Some(current_position), min)
-        } else if current_position < min.unwrap() {
-            (max, Some(current_position))
-        } else {
-            max_and_min
-        }
-    });
+            if current_position > max.unwrap() {
+                (Some(current_position), min)
+            } else if current_position < min.unwrap() {
+                (max, Some(current_position))
+            } else {
+                max_and_min
+            }
+        });
 
     (*max.unwrap() as isize, *min.unwrap() as isize)
 }
 
 fn get_lowest_fuel_count(fuel_cost_by_position: &HashMap<isize, i32>) -> i32 {
-    *fuel_cost_by_position.iter().fold(None, |cheapest_fuel_cost, (_, fuel_cost)| {
-        if cheapest_fuel_cost == None || fuel_cost < cheapest_fuel_cost.unwrap() {
-            Some(fuel_cost)
-        } else {
-            cheapest_fuel_cost
-        }
-    }).unwrap()
+    *fuel_cost_by_position
+        .iter()
+        .fold(None, |cheapest_fuel_cost, (_, fuel_cost)| {
+            if cheapest_fuel_cost == None || fuel_cost < cheapest_fuel_cost.unwrap() {
+                Some(fuel_cost)
+            } else {
+                cheapest_fuel_cost
+            }
+        })
+        .unwrap()
 }
 
 pub fn run_part1(path: &str) -> i32 {
     let content = util::get_file_content(path);
-    let nums = content.split(",").map(|num| num.parse::<i32>().unwrap()).collect::<Vec<i32>>();
+    let nums = content
+        .split(",")
+        .map(|num| num.parse::<i32>().unwrap())
+        .collect::<Vec<i32>>();
     let (max, min) = get_max_and_min(&nums);
 
     let mut fuel_cost_by_position = HashMap::new();
@@ -52,7 +60,10 @@ pub fn run_part1(path: &str) -> i32 {
 
 pub fn run_part2(path: &str) -> i32 {
     let content = util::get_file_content(path);
-    let nums = content.split(",").map(|num| num.parse::<i32>().unwrap()).collect::<Vec<i32>>();
+    let nums = content
+        .split(",")
+        .map(|num| num.parse::<i32>().unwrap())
+        .collect::<Vec<i32>>();
     let (max, min) = get_max_and_min(&nums);
 
     let mut fuel_cost_by_position = HashMap::new();
