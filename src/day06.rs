@@ -11,10 +11,8 @@ pub fn run_part1(path: &str, days: i32) -> i64 {
         *count += 1;
     });
 
-
+    let mut temp_map = HashMap::new();
     for _ in 0..days {
-        let mut temp_map = HashMap::new();
-
         for (day, count) in nums_map {
             if day == 0 {
                 let c1 = temp_map.entry(6).or_insert(0);
@@ -27,13 +25,11 @@ pub fn run_part1(path: &str, days: i32) -> i64 {
                 *c += count;
             }
         }
-
         nums_map = temp_map.clone();
+        temp_map.clear();
     }
 
-    nums_map.iter().fold(0, |count, (_, v)| {
-        count + v
-    })    
+    nums_map.iter().fold(0, |count, (_, v)| count + v)
 }
 
 pub fn run_part2(path: &str, days: i32) -> i64 {
@@ -42,6 +38,7 @@ pub fn run_part2(path: &str, days: i32) -> i64 {
 
 fn main() {}
 
+#[cfg(test)]
 mod tests {
     use crate::{run_part1, run_part2};
 

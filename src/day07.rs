@@ -1,4 +1,4 @@
-// https://adventofcode.com/2021/day/
+// https://adventofcode.com/2021/day/7
 
 pub fn run_part1(path: &str) -> i32 {
     0
@@ -17,24 +17,24 @@ mod tests {
     #[ignore]
     #[test]
     fn part1_example() {
-        assert_eq!(-1, run_part1("day00_example.txt"))
+        assert_eq!(-1, run_part1("day07_example.txt"))
     }
 
     #[ignore]
     #[test]
     fn part2_example() {
-        assert_eq!(-1, run_part2("day00_example.txt"))
+        assert_eq!(-1, run_part2("day07_example.txt"))
     }
 
     #[ignore]
     #[test]
     fn part1() {
-        assert_eq!(-1, run_part1("day00.txt"))
+        assert_eq!(-1, run_part1("day07.txt"))
     }
 
     #[ignore]
     #[test]
     fn part2() {
-        assert_eq!(-1, run_part2("day00.txt"))
+        assert_eq!(-1, run_part2("day07.txt"))
     }
 }
