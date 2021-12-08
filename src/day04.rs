@@ -9,7 +9,8 @@ struct Board {
 
 fn get_drawn_numbers(first_part: &str) -> Vec<i32> {
     first_part
-        .split_terminator(",")
+        .trim()
+        .split(",")
         .map(|drawn_num| drawn_num.parse::<i32>().unwrap())
         .collect::<Vec<i32>>()
 }
