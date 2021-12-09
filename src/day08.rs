@@ -52,13 +52,14 @@ pub fn run_part2(path: &str) -> i32 {
             .split_whitespace()
             .collect::<Vec<&str>>();
 
+        let mut one_chars_set = HashSet::new();
         let mut four_chars_set = HashSet::new();
         let mut seven_chars_set = HashSet::new();
         let mut eight_chars_set = HashSet::new();
         for segment in &unique_signal_pattern {
-            if segment.len() == 3 {
+            if segment.len() == 2 {
                 segment.chars().for_each(|c| {
-                    seven_chars_set.insert(c);
+                    one_chars_set.insert(c);
                 });
             }
 
@@ -68,20 +69,21 @@ pub fn run_part2(path: &str) -> i32 {
                 });
             }
 
-            if segment.len() == 8 {
+            if segment.len() == 3 {
+                segment.chars().for_each(|c| {
+                    seven_chars_set.insert(c);
+                });
+            }
+
+            if segment.len() == 7 {
                 segment.chars().for_each(|c| {
                     eight_chars_set.insert(c);
                 });
             }
         }
 
-        let mut one_chars_set = HashSet::new();
         for segment in &unique_signal_pattern {
             if segment.len() == 2 {
-                segment.chars().for_each(|c| {
-                    one_chars_set.insert(c);
-                });
-
                 let top = **seven_chars_set
                     .difference(&one_chars_set)
                     .collect::<HashSet<_>>()
@@ -105,8 +107,8 @@ pub fn run_part2(path: &str) -> i32 {
                 if !one_chars_set.is_subset(&temp_set) {
                     six_chars_set = temp_set;
 
-                    let top_right = **six_chars_set
-                        .difference(&one_chars_set)
+                    let top_right = **one_chars_set
+                        .difference(&six_chars_set)
                         .collect::<HashSet<_>>()
                         .iter()
                         .next()
@@ -117,8 +119,8 @@ pub fn run_part2(path: &str) -> i32 {
                     let mut temp_set = HashSet::new();
                     temp_set.insert(top_right);
 
-                    let bottom_right = **temp_set
-                        .difference(&one_chars_set)
+                    let bottom_right = **one_chars_set
+                        .difference(&temp_set)
                         .collect::<HashSet<_>>()
                         .iter()
                         .next()
@@ -145,36 +147,33 @@ pub fn run_part2(path: &str) -> i32 {
                         .difference(&four_chars_set)
                         .collect::<HashSet<_>>();
 
-                    top_and_bottom.iter().for_each(|c| {
+                    for c in top_and_bottom.iter() {
                         if char_by_position.get("top").unwrap() != *c {
                             char_by_position.insert("bottom", **c);
+                            break;
                         }
-                    });
+                    }
                     break;
                 }
             }
         }
 
-        let mut three_chars_set = HashSet::new();
         for segment in &unique_signal_pattern {
             if segment.len() == 5 {
                 if segment.contains(|c| {
-                    *char_by_position.get("top").unwrap() == c
-                        || *char_by_position.get("bottom").unwrap() == c
-                        || *char_by_position.get("top_right").unwrap() == c
+                    *char_by_position.get("top_right").unwrap() == c
                         || *char_by_position.get("bottom_right").unwrap() == c
                 }) {
-                    segment.chars().for_each(|c| {
-                        if *char_by_position.get("top").unwrap() == c
-                            || *char_by_position.get("bottom").unwrap() == c
-                            || *char_by_position.get("top_right").unwrap() == c
-                            || *char_by_position.get("bottom_right").unwrap() == c
+                    for c in segment.chars() {
+                        if *char_by_position.get("top").unwrap() != c
+                            && *char_by_position.get("bottom").unwrap() != c
+                            && *char_by_position.get("top_right").unwrap() != c
+                            && *char_by_position.get("bottom_right").unwrap() != c
                         {
                             char_by_position.insert("middle", c);
-                        } else {
-                            three_chars_set.insert(c);
+                            break;
                         }
-                    });
+                    }
                     break;
                 }
             }
@@ -242,13 +241,11 @@ pub fn run_part2(path: &str) -> i32 {
                         "3"
                     }
                 }
-                l @ _ => panic!("length of ({}) did not match anything", l),
+                l @ _ => panic!("length ({}) did not match anything", l),
             })
             .collect::<String>()
             .parse::<i32>()
             .unwrap();
-
-        println!("{}", value);
 
         total_value_count + value
     })
@@ -275,9 +272,8 @@ mod tests {
         assert_eq!(310, run_part1("day08.txt"))
     }
 
-    #[ignore]
     #[test]
     fn part2() {
-        assert_eq!(-1, run_part2("day08.txt"))
+        assert_eq!(1032878, run_part2("day08.txt"))
     }
 }
