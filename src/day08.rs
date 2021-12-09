@@ -37,13 +37,150 @@ pub fn run_part1(path: &str) -> i32 {
     one_count + four_count + seven_count + eight_count
 }
 
+fn get_char_by_position(unique_signal_pattern: Vec<&str>) -> HashMap<&str, char> {
+    let mut char_by_position = HashMap::new();
+
+    let mut one_chars_set = HashSet::new();
+    let mut seven_chars_set = HashSet::new();
+    let mut eight_chars_set = HashSet::new();
+    for segment in &unique_signal_pattern {
+        if segment.len() == 2 {
+            segment.chars().for_each(|c| {
+                one_chars_set.insert(c);
+            });
+        }
+
+        if segment.len() == 3 {
+            segment.chars().for_each(|c| {
+                seven_chars_set.insert(c);
+            });
+        }
+
+        if segment.len() == 7 {
+            segment.chars().for_each(|c| {
+                eight_chars_set.insert(c);
+            });
+        }
+    }
+
+    for segment in &unique_signal_pattern {
+        if segment.len() == 2 {
+            let top = **seven_chars_set
+                .difference(&one_chars_set)
+                .collect::<HashSet<_>>()
+                .iter()
+                .next()
+                .unwrap();
+
+            char_by_position.insert("top", top);
+        }
+    }
+
+    for segment in &unique_signal_pattern {
+        if segment.len() == 6 {
+            let mut temp_set = HashSet::new();
+            segment.chars().for_each(|c| {
+                temp_set.insert(c);
+            });
+
+            if !one_chars_set.is_subset(&temp_set) {
+                let top_right = **one_chars_set
+                    .difference(&temp_set)
+                    .collect::<HashSet<_>>()
+                    .iter()
+                    .next()
+                    .unwrap();
+
+                char_by_position.insert("top_right", top_right);
+
+                let mut temp_set = HashSet::new();
+                temp_set.insert(top_right);
+
+                let bottom_right = **one_chars_set
+                    .difference(&temp_set)
+                    .collect::<HashSet<_>>()
+                    .iter()
+                    .next()
+                    .unwrap();
+
+                char_by_position.insert("bottom_right", bottom_right);
+            }
+        }
+    }
+
+    let mut two_chars_set = HashSet::new();
+    let mut three_chars_set = HashSet::new();
+    let mut five_chars_set = HashSet::new();
+    for segment in &unique_signal_pattern {
+        if segment.len() == 5 {
+            let mut temp_set = HashSet::new();
+            segment.chars().for_each(|c| {
+                temp_set.insert(c);
+            });
+
+            if one_chars_set.is_subset(&temp_set) {
+                three_chars_set = temp_set.clone();
+            } else {
+                if temp_set.contains(char_by_position.get("top_right").unwrap()) {
+                    two_chars_set = temp_set.clone();
+                } else {
+                    five_chars_set = temp_set.clone();
+                }
+            }
+        }
+    }
+
+    for segment in &unique_signal_pattern {
+        if segment.len() == 5 {
+            for c in segment.chars() {
+                if two_chars_set.contains(&c) && !three_chars_set.contains(&c) {
+                    char_by_position.insert("bottom_left", c);
+                } else if five_chars_set.contains(&c) && !three_chars_set.contains(&c) {
+                    char_by_position.insert("top_left", c);
+                }
+            }
+        }
+    }
+
+    for segment in &unique_signal_pattern {
+        if segment.len() == 4 {
+            for c in segment.chars() {
+                if &c != char_by_position.get("top_left").unwrap()
+                    && &c != char_by_position.get("top_right").unwrap()
+                    && &c != char_by_position.get("bottom_right").unwrap()
+                {
+                    char_by_position.insert("middle", c);
+                }
+            }
+        }
+    }
+
+    for segment in &unique_signal_pattern {
+        if segment.len() == 7 {
+            let mut temp_set = HashSet::new();
+            for (_, c) in &char_by_position {
+                temp_set.insert(*c);
+            }
+
+            let bottom = **eight_chars_set
+                .difference(&temp_set)
+                .collect::<HashSet<_>>()
+                .iter()
+                .next()
+                .unwrap();
+
+            char_by_position.insert("bottom", bottom);
+        }
+    }
+
+    char_by_position
+}
+
 pub fn run_part2(path: &str) -> i32 {
     let content = get_formatted_content(path);
 
     content.lines().fold(0, |total_value_count, line| {
         let mut line = line.split("|");
-
-        let mut char_by_position = HashMap::new();
 
         let unique_signal_pattern = line
             .next()
@@ -52,147 +189,11 @@ pub fn run_part2(path: &str) -> i32 {
             .split_whitespace()
             .collect::<Vec<&str>>();
 
-        let mut one_chars_set = HashSet::new();
-        let mut seven_chars_set = HashSet::new();
-        let mut eight_chars_set = HashSet::new();
-        for segment in &unique_signal_pattern {
-            if segment.len() == 2 {
-                segment.chars().for_each(|c| {
-                    one_chars_set.insert(c);
-                });
-            }
+        let char_by_position = get_char_by_position(unique_signal_pattern);
 
-            if segment.len() == 3 {
-                segment.chars().for_each(|c| {
-                    seven_chars_set.insert(c);
-                });
-            }
-
-            if segment.len() == 7 {
-                segment.chars().for_each(|c| {
-                    eight_chars_set.insert(c);
-                });
-            }
-        }
-        let one_chars_set = one_chars_set;
-        let seven_chars_set = seven_chars_set;
-        let eight_chars_set = eight_chars_set;
-
-        for segment in &unique_signal_pattern {
-            if segment.len() == 2 {
-                let top = **seven_chars_set
-                    .difference(&one_chars_set)
-                    .collect::<HashSet<_>>()
-                    .iter()
-                    .next()
-                    .unwrap();
-
-                char_by_position.insert("top", top);
-            }
-        }
-
-        let mut six_chars_set = HashSet::new();
-        for segment in &unique_signal_pattern {
-            if segment.len() == 6 {
-                let mut temp_set = HashSet::new();
-                segment.chars().for_each(|c| {
-                    temp_set.insert(c);
-                });
-
-                if !one_chars_set.is_subset(&temp_set) {
-                    six_chars_set = temp_set.clone();
-                    let top_right = **one_chars_set
-                        .difference(&temp_set)
-                        .collect::<HashSet<_>>()
-                        .iter()
-                        .next()
-                        .unwrap();
-
-                    char_by_position.insert("top_right", top_right);
-
-                    let mut temp_set = HashSet::new();
-                    temp_set.insert(top_right);
-
-                    let bottom_right = **one_chars_set
-                        .difference(&temp_set)
-                        .collect::<HashSet<_>>()
-                        .iter()
-                        .next()
-                        .unwrap();
-
-                    char_by_position.insert("bottom_right", bottom_right);
-                }
-            }
-        }
-        let six_chars_set = six_chars_set;
-
-        let mut two_chars_set = HashSet::new();
-        let mut three_chars_set = HashSet::new();
-        let mut five_chars_set = HashSet::new();
-        for segment in &unique_signal_pattern {
-            if segment.len() == 5 {
-                let mut temp_set = HashSet::new();
-                segment.chars().for_each(|c| {
-                    temp_set.insert(c);
-                });
-
-                if one_chars_set.is_subset(&temp_set) {
-                    three_chars_set = temp_set.clone();
-                } else {
-                    if temp_set.contains(char_by_position.get("top_right").unwrap()) {
-                        two_chars_set = temp_set.clone();
-                    } else {
-                        five_chars_set = temp_set.clone();
-                    }
-                }
-            }
-        }
-        let two_chars_set = two_chars_set;
-        let three_chars_set = three_chars_set;
-        let five_chars_set = five_chars_set;
-
-        for segment in &unique_signal_pattern {
-            if segment.len() == 5 {
-                for c in segment.chars() {
-                    if two_chars_set.contains(&c) && !three_chars_set.contains(&c) {
-                        char_by_position.insert("bottom_left", c);
-                    } else if five_chars_set.contains(&c) && !three_chars_set.contains(&c) {
-                        char_by_position.insert("top_left", c);
-                    }
-                }
-            }
-        }
-
-        for segment in &unique_signal_pattern {
-            if segment.len() == 4 {
-                for c in segment.chars() {
-                    if &c != char_by_position.get("top_left").unwrap()
-                        && &c != char_by_position.get("top_right").unwrap()
-                        && &c != char_by_position.get("bottom_right").unwrap()
-                    {
-                        char_by_position.insert("middle", c);
-                    }
-                }
-            }
-        }
-
-        for segment in &unique_signal_pattern {
-            if segment.len() == 7 {
-                let mut temp_set = HashSet::new();
-                for (_, c) in &char_by_position {
-                    temp_set.insert(*c);
-                }
-
-                let bottom = **eight_chars_set
-                    .difference(&temp_set)
-                    .collect::<HashSet<_>>()
-                    .iter()
-                    .next()
-                    .unwrap();
-
-                char_by_position.insert("bottom", bottom);
-            }
-        }
+        let segment_not_contain_position = |segment: &str, position: &str| {
+            !segment.contains(|c| char_by_position.get(position).unwrap() == &c)
+        };
 
         let value = line
             .next()
@@ -205,18 +206,18 @@ pub fn run_part2(path: &str) -> i32 {
                 3 => "7",
                 7 => "8",
                 6 => {
-                    if !segment.contains(|c| char_by_position.get("middle").unwrap() == &c) {
+                    if segment_not_contain_position(segment, "middle") {
                         "0"
-                    } else if segment.chars().all(|c| six_chars_set.contains(&c)) {
+                    } else if segment_not_contain_position(segment, "top_right") {
                         "6"
                     } else {
                         "9"
                     }
                 }
                 5 => {
-                    if segment.chars().all(|c| five_chars_set.contains(&c)) {
+                    if segment_not_contain_position(segment, "top_right") {
                         "5"
-                    } else if segment.chars().all(|c| two_chars_set.contains(&c)) {
+                    } else if segment_not_contain_position(segment, "bottom_right") {
                         "2"
                     } else {
                         "3"
