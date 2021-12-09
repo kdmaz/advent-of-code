@@ -91,6 +91,7 @@ pub fn run_part2(path: &str) -> i32 {
             }
         }
 
+        let mut six_chars_set = HashSet::new();
         for segment in &unique_signal_pattern {
             if segment.len() == 6 {
                 let mut temp_set = HashSet::new();
@@ -99,6 +100,7 @@ pub fn run_part2(path: &str) -> i32 {
                 });
 
                 if !one_chars_set.is_subset(&temp_set) {
+                    six_chars_set = temp_set.clone();
                     let top_right = **one_chars_set
                         .difference(&temp_set)
                         .collect::<HashSet<_>>()
@@ -122,6 +124,7 @@ pub fn run_part2(path: &str) -> i32 {
                 }
             }
         }
+        let six_chars_set = six_chars_set;
 
         let mut two_chars_set = HashSet::new();
         let mut three_chars_set = HashSet::new();
@@ -202,30 +205,18 @@ pub fn run_part2(path: &str) -> i32 {
                 3 => "7",
                 7 => "8",
                 6 => {
-                    if !segment
-                        .chars()
-                        .any(|c| char_by_position.get("middle").unwrap() == &c)
-                    {
+                    if !segment.contains(|c| char_by_position.get("middle").unwrap() == &c) {
                         "0"
-                    } else if !segment
-                        .chars()
-                        .any(|c| char_by_position.get("top_right").unwrap() == &c)
-                    {
+                    } else if segment.chars().all(|c| six_chars_set.contains(&c)) {
                         "6"
                     } else {
                         "9"
                     }
                 }
                 5 => {
-                    if !segment
-                        .chars()
-                        .any(|c| char_by_position.get("top_right").unwrap() == &c)
-                    {
+                    if segment.chars().all(|c| five_chars_set.contains(&c)) {
                         "5"
-                    } else if !segment
-                        .chars()
-                        .any(|c| char_by_position.get("bottom_right").unwrap() == &c)
-                    {
+                    } else if segment.chars().all(|c| two_chars_set.contains(&c)) {
                         "2"
                     } else {
                         "3"
