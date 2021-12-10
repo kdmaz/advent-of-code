@@ -70,7 +70,7 @@ struct Point {
 }
 
 fn recursively_add_to_basin(basin: &mut HashSet<Point>, point: Point, row: &Vec<i32>, table: &Vec<Vec<i32>>) {
-    if basin.contains(&point) {
+    if basin.contains(&point) || point.val == 9 {
         return;
     }
 
@@ -115,7 +115,7 @@ fn recursively_add_to_basin(basin: &mut HashSet<Point>, point: Point, row: &Vec<
                         y: y - 1,
                         val: *up.unwrap(),
                     },
-                    row,
+                    up_row.unwrap(),
                     table,
                 );
             }
@@ -135,7 +135,7 @@ fn recursively_add_to_basin(basin: &mut HashSet<Point>, point: Point, row: &Vec<
                         y: y + 1,
                         val: *down.unwrap(),
                     },
-                    row,
+                    down_row.unwrap(),
                     table,
                 );
             }
@@ -173,12 +173,16 @@ pub fn run_part2(path: &str) -> i32 {
 
             recursively_add_to_basin(&mut basin, current_point, row, &table);
 
-            basins.push(basin);
+            if basin.len() > 0 {
+                basins.push(basin);
+            }
         }
         y += 1;
     }
 
-    println!("basins {:?}", basins);
+    basins.iter().for_each(|basin| {
+        println!("{}", basin.len());
+    });
 
     0
 }
