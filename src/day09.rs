@@ -180,11 +180,12 @@ pub fn run_part2(path: &str) -> i32 {
         y += 1;
     }
 
-    basins.iter().for_each(|basin| {
-        println!("{}", basin.len());
-    });
+    let mut basin_lengths = basins.iter().map(|basin| basin.len() as i32).collect::<Vec<i32>>();
+    basin_lengths.sort();
+    basin_lengths.reverse();
 
-    0
+    let mut basin_iter = basin_lengths.iter();
+    basin_iter.next().unwrap() * basin_iter.next().unwrap() * basin_iter.next().unwrap()
 }
 
 fn main() {}
@@ -208,9 +209,8 @@ mod tests {
         assert_eq!(475, run_part1("day09.txt"))
     }
 
-    #[ignore]
     #[test]
     fn part2() {
-        assert_eq!(-1, run_part2("day09.txt"))
+        assert_eq!(1092012, run_part2("day09.txt"))
     }
 }
